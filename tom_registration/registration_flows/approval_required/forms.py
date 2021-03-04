@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.auth.forms import AuthenticationForm
 
 from tom_common.forms import CustomUserCreationForm
 
@@ -16,13 +17,6 @@ class RegistrationApprovalForm(CustomUserCreationForm):
         return user
 
 
-# TODO: how will groups be handled in this registration flow? request group membership?
-class OpenRegistrationForm(CustomUserCreationForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields.pop('groups')
-
-
 class ApproveUserForm(CustomUserCreationForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -37,3 +31,13 @@ class ApproveUserForm(CustomUserCreationForm):
             self.save_m2m()
 
         return user
+
+
+class CustomAuthenticationForm(AuthenticationForm):
+    def confirm_login_allowed(self, user):
+        print('here')
+        if not user.is_active:
+            raise forms.ValidationError(
+                ('Your registration is currently pending administrator approval.'),
+                code='inactive'
+            )

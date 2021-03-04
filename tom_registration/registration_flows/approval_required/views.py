@@ -4,13 +4,15 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.models import User, Group
+from django.contrib.auth.views import LoginView
 from django.http import HttpResponseRedirect
 from django.views.generic.edit import CreateView, UpdateView
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 
 from tom_common.mixins import SuperuserRequiredMixin
-from tom_registration.forms import ApproveUserForm, RegistrationApprovalForm
+from tom_registration.registration_flows.approval_required.forms import ApproveUserForm, CustomAuthenticationForm
+from tom_registration.registration_flows.approval_required.forms import RegistrationApprovalForm
 
 logger = logging.getLogger(__name__)
 
@@ -49,3 +51,7 @@ class UserApprovalView(SuperuserRequiredMixin, UpdateView):
     template_name = 'tom_registration/approve_user.html'
     success_url = reverse_lazy('user-list')
     form_class = ApproveUserForm
+
+
+class CustomLoginView(LoginView):
+    authentication_form = CustomAuthenticationForm
