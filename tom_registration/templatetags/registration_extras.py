@@ -19,6 +19,6 @@ def pending_users(context):
 
     """
     return {
-        'request': context['request'],  # TODO: should this live in the user_list.html template?
+        'request': context['request'],
         'users': User.objects.filter(is_active=False)
     }
