@@ -1,6 +1,7 @@
 from django.urls import path
 
-from tom_registration.views import ApprovalRegistrationView, OpenRegistrationView, UserApprovalView
+from tom_registration.registration_flows.approval_required.views import ApprovalRegistrationView, UserApprovalView
+from tom_registration.registration_flows.open.views import OpenRegistrationView
 
 app_name = 'tom_registration'
 

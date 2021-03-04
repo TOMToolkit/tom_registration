@@ -25,7 +25,7 @@ class OpenRegistrationView(CreateView):
 
     """
     template_name = 'tom_registration/register_user.html'
-    success_url = reverse_lazy('home')
+    success_url = reverse_lazy(settings.TOM_REGISTRATION.get('REGISTRATION_REDIRECT_PATTERN', ''))
     form_class = OpenRegistrationForm
 
     def form_valid(self, form):

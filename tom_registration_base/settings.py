@@ -9,8 +9,24 @@ https://docs.djangoproject.com/en/3.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
-
+from enum import Enum, unique
+import logging.config
+import os
 from pathlib import Path
+import tempfile
+
+
+@unique
+class RegistrationFlow(Enum):
+    """
+    The RegistrationFlow enumerator is used to define the various registration flows in order to render the correct
+    registration view.
+    """
+    ADMIN_REGISTRATION_ONLY = 'ADMIN_REGISTRATION_ONLY'
+    OPEN = 'OPEN'
+    APPROVAL_REQUIRED = 'APPROVAL_REQUIRED'
+
+REGISTRATION_FLOWS = RegistrationFlow
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -31,12 +47,19 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'django_comments',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'django.contrib.sites',
     'django.contrib.staticfiles',
+    'bootstrap4',
+    'guardian',
+    'tom_common',
+    'tom_targets',
+    'tom_registration'
 ]
 
 MIDDLEWARE = [
@@ -118,3 +141,16 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'guardian.backends.ObjectPermissionBackend',
+)
+
+
+REGISTRATION_AUTHENTICATION_BACKEND = 'django.contrib.auth.backends.ModelBackend'
+TOM_REGISTRATION = {
+    'REGISTRATION_FLOW': 'APPROVAL_REQUIRED',
+    'REGISTRATION_AUTHENTICATION_BACKEND': 'django.contrib.auth.backends.ModelBackend',
+    'REGISTRATION_REDIRECT_PATTERN': 'register'
+}

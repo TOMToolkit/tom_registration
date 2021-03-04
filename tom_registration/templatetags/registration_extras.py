@@ -16,7 +16,7 @@ def registration_button():
     """
 
     """
-    url = reverse('home')
+    url = reverse(settings.TOM_REGISTRATION.get('REGISTRATION_REDIRECT_PATTERN', ''))
     user_self_registration = (REGISTRATION_FLOW != settings.REGISTRATION_FLOWS.ADMIN_REGISTRATION_ONLY)
     if user_self_registration:
         url = reverse('registration:register')
