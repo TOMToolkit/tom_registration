@@ -8,5 +8,5 @@ app_name = 'tom_registration'
 
 urlpatterns = [
     path('accounts/login/', LoginView.as_view(), name='login'),
-    path('register/', OpenRegistrationView.as_view(), name='register'),
+    path('accounts/register/', OpenRegistrationView.as_view(), name='register'),
 ]

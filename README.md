@@ -33,6 +33,16 @@ The two registration flows are as follows:
     }
     ```
 
+    To prevent logged-in users from accessing the registration page, add `RedirectAuthenticatedUsersFromRegisterMiddleware` to the `MIDDLEWARE` settings:
+
+    ```python
+    MIDDLEWARE = [
+        ...
+        'tom_common.middleware.AuthStrategyMiddleware',
+        'tom_registration.middleware.RedirectAuthenticatedUsersFromRegisterMiddleware',
+    ]
+    ```
+
     If you're using approval registration and you would like a message informing the user that their account is pending approval if they try to log in prior to approval, you'll need to make the following changes to your `settings.py`. First, set the first item of your `AUTHENTICATION_BACKENDS`:
 
     ```python
