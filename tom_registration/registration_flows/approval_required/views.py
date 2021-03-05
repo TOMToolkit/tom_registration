@@ -51,7 +51,3 @@ class UserApprovalView(SuperuserRequiredMixin, UpdateView):
     template_name = 'tom_registration/approve_user.html'
     success_url = reverse_lazy('user-list')
     form_class = ApproveUserForm
-
-
-class CustomLoginView(LoginView):
-    authentication_form = CustomAuthenticationForm

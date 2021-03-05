@@ -56,6 +56,7 @@ class TestApprovalRegistrationViews(TestCase):
             'password1': 'gopackgo',
             'password2': 'gopackgo',
         }
+        self.superuser = User.objects.create_superuser(username='superuser')
 
     def test_user_register(self):
         response = self.client.post(reverse('register'), data=self.user_data)
@@ -68,14 +69,32 @@ class TestApprovalRegistrationViews(TestCase):
         self.assertFalse(user.is_active)
         self.assertTrue(auth.get_user(self.client).is_anonymous)
 
-        print(messages)
-        response = self.client.post(reverse('login'), 
-                                    data={
-                                        'username': self.user_data['username'],
-                                        'password': self.user_data['password1']
-                                    }, follow=True)
-        self.assertTrue(auth.get_user(self.client).is_anonymous)
+        # print(messages)
+        # response = self.client.post(reverse('login'), 
+        #                             data={
+        #                                 'username': self.user_data['username'],
+        #                                 'password': self.user_data['password1']
+        #                             }, follow=True)
+        # self.assertTrue(auth.get_user(self.client).is_anonymous)
+        # print(response.status_code)
+        # print(auth.get_user(self.client))
+        # messages = [(m.message, m.level) for m in get_messages(response.wsgi_request)]
+        # print(messages)
+
+    def test_user_approve(self):
+        response = self.client.post(reverse('register'), data=self.user_data)
+        user = User.objects.get(username=self.user_data['username'])
+        self.assertFalse(user.is_active)
+
+        # user_approval_data = copy(self.user_data)
+        # user_approval_data.pop('password1')
+        # user_approval_data.pop('password2')
+        self.client.force_login(self.superuser)
+        response = self.client.post(reverse('approve', kwargs={'pk': user.id}), data=self.user_data)
         print(response.status_code)
-        print(auth.get_user(self.client))
-        messages = [(m.message, m.level) for m in get_messages(response.wsgi_request)]
-        print(messages)
+        user.refresh_from_db()
+        self.assertTrue(user.is_active)
+
+
+class TestRegistrationExtras(TestCase):
+    pass

@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django_extensions',
     'guardian',
+    'tom_registration',
     'tom_common',
     'django_comments',
     'bootstrap4',
@@ -71,7 +72,6 @@ INSTALLED_APPS = [
     'tom_catalogs',
     'tom_observations',
     'tom_dataproducts',
-    'tom_registration',
 ]
 
 SITE_ID = 1

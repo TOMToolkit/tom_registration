@@ -35,7 +35,7 @@ class ApproveUserForm(CustomUserCreationForm):
 
 class CustomAuthenticationForm(AuthenticationForm):
     def confirm_login_allowed(self, user):
-        print('here')
+        print('confirm_login_allowed')
         if not user.is_active:
             raise forms.ValidationError(
                 ('Your registration is currently pending administrator approval.'),
