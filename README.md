@@ -63,12 +63,11 @@ Approval Registration:
         ]
     ```
 
-# TODO: Add links to the correct files
 4. While the registration views are now accessible directly, some changes need to be made to templates to make them available.
 
-Copy the contents of the following file to `templates/tom_common/partials/navbar_login.html`.
+Copy the contents of [this file](https://github.com/TOMToolkit/tom_registration/blob/main/templates/tom_common/partials/navbar_login.html) to `templates/tom_common/partials/navbar_login.html`.
 
-If you're using approval registration, copy the contents of this file to `templates/auth/user_list.html`.
+If you're using approval registration, copy the contents of [this file](https://github.com/TOMToolkit/tom_registration/blob/main/templates/auth/user_list.html) to `templates/auth/user_list.html`.
 
 5. If you're using approval registration and you would like a message informing the user that their account is pending approval if they try to log in prior to approval, you'll need to make the following changes:
 
