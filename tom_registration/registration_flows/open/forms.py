@@ -1,5 +1,3 @@
-from django import forms
-
 from tom_common.forms import CustomUserCreationForm
 
 

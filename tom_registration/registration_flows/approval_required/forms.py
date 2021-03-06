@@ -24,7 +24,9 @@ class ApproveUserForm(CustomUserCreationForm):
         self.fields.pop('password2')
 
     def save(self, commit=True):
-        user = super(forms.ModelForm, self).save(commit=False)  # TODO: document explicit call to forms.ModelForm superclass
+        # NOTE: The superclass call is specifically to forms.ModelForm rather than CustomUserCreationForm--
+        # this is done because the form doubles as an update form, and it bypasses any password checks.
+        user = super(forms.ModelForm, self).save(commit=False)
         user.is_active = True
         if commit:
             user.save()
@@ -33,7 +35,7 @@ class ApproveUserForm(CustomUserCreationForm):
         return user
 
 
-class CustomAuthenticationForm(AuthenticationForm):
+class ApprovalAuthenticationForm(AuthenticationForm):
     def confirm_login_allowed(self, user):
         print('confirm_login_allowed')
         if not user.is_active:

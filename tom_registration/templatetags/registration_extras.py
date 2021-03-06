@@ -1,7 +1,5 @@
 from django import template
-from django.conf import settings
 from django.contrib.auth.models import User
-from django.shortcuts import reverse
 
 register = template.Library()
 
@@ -12,6 +10,7 @@ def registration_button():
     Renders a register button that navigates the user to the registration form.
     """
     return
+
 
 @register.inclusion_tag('tom_registration/partials/pending_users.html', takes_context=True)
 def pending_users(context):

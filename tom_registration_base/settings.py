@@ -10,26 +10,8 @@ https://docs.djangoproject.com/en/2.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.1/ref/settings/
 """
-from enum import Enum, unique
-import logging.config
 import os
 import tempfile
-
-
-@unique
-class RegistrationFlow(Enum):
-    """
-    The RegistrationFlow enumerator is used to define the various registration flows in order to render the correct
-    registration view.
-    """
-    ADMIN_REGISTRATION_ONLY = 'ADMIN_REGISTRATION_ONLY'
-    OPEN = 'OPEN'
-    APPROVAL_REQUIRED = 'APPROVAL_REQUIRED'
-
-# Django settings must be all caps in order to be used in the application. This setting makes the RegistrationFlow
-# enumerator available in the installed apps.
-REGISTRATION_FLOWS = RegistrationFlow
-
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -59,7 +41,6 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django_extensions',
     'guardian',
-    'tom_registration',
     'tom_common',
     'django_comments',
     'bootstrap4',
@@ -72,6 +53,7 @@ INSTALLED_APPS = [
     'tom_catalogs',
     'tom_observations',
     'tom_dataproducts',
+    'tom_registration',
 ]
 
 SITE_ID = 1
@@ -149,9 +131,6 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
     'guardian.backends.ObjectPermissionBackend',
 )
-# In order to immediately log in a user after successful registration, the application needs to know the
-# preferred authentication backend to use for login. This setting should only be changed by advanced users.
-REGISTRATION_AUTHENTICATION_BACKEND = 'django.contrib.auth.backends.ModelBackend'
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.1/topics/i18n/
@@ -291,9 +270,6 @@ HARVESTERS = {
 # ]
 EXTRA_FIELDS = []
 
-USER_SELF_REGISTRATION = False
-REGISTRATION_FLOW = 'OPEN'
-
 # Authentication strategy can either be LOCKED (required login for all views)
 # or READ_ONLY (read only access to views)
 AUTH_STRATEGY = 'READ_ONLY'
@@ -332,9 +308,8 @@ REST_FRAMEWORK = {
 }
 
 TOM_REGISTRATION = {
-    'REGISTRATION_FLOW': 'APPROVAL_REQUIRED',
     'REGISTRATION_AUTHENTICATION_BACKEND': 'django.contrib.auth.backends.ModelBackend',
-    'REGISTRATION_REDIRECT_PATTERN': 'register'
+    'REGISTRATION_REDIRECT_PATTERN': 'home'
 }
 
 try:

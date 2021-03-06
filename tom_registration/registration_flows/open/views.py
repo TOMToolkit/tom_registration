@@ -34,7 +34,7 @@ class OpenRegistrationView(CreateView):
             try:
                 print('pre-login')
                 # TODO: how do we ensure that the model backend is in use in settings.py?
-                login(self.request, self.object, 
+                login(self.request, self.object,
                       backend=settings.TOM_REGISTRATION.get('REGISTRATION_AUTHENTICATION_BACKEND'))
                 print('login')
             except ValueError as ve:

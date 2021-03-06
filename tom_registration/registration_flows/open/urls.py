@@ -1,5 +1,5 @@
 from django.contrib.auth.views import LoginView
-from django.urls import include, path
+from django.urls import path
 
 from tom_registration.registration_flows.open.views import OpenRegistrationView
 
