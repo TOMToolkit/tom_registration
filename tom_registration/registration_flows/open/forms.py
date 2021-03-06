@@ -1,8 +1,11 @@
 from tom_common.forms import CustomUserCreationForm
 
 
-# TODO: how will groups be handled in this registration flow? request group membership?
 class OpenRegistrationForm(CustomUserCreationForm):
+    """
+    Form for handling open registration requests. Does not render any groups, as the user cannot choose their own
+    groups.
+    """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields.pop('groups')

@@ -58,7 +58,7 @@ class UserApprovalView(SuperuserRequiredMixin, UpdateView):
     form_class = ApproveUserForm
 
     def form_valid(self, form):
-        response = super.form_valid(form)
+        response = super().form_valid(form)
 
         if settings.TOM_REGISTRATION.get('SEND_APPROVAL_EMAILS'):
             try:
@@ -69,3 +69,5 @@ class UserApprovalView(SuperuserRequiredMixin, UpdateView):
                           )
             except SMTPException as smtpe:
                 logger.error(f'Unable to send email: {smtpe}')
+
+        return response

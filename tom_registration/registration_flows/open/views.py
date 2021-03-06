@@ -15,14 +15,14 @@ logger = logging.getLogger(__name__)
 
 class OpenRegistrationView(CreateView):
     """
-    View for registering in the open registration flow. This view creates the user and immediately logs them in.
+    View for registering in the open registration flow. This view creates the user, adds them to the public group, and
+    immediately logs them in.
     """
     template_name = 'tom_registration/register_user.html'
     success_url = reverse_lazy(settings.TOM_REGISTRATION.get('REGISTRATION_REDIRECT_PATTERN', ''))
     form_class = OpenRegistrationForm
 
     def form_valid(self, form):
-        print('form valid')
         super().form_valid(form)
         group, _ = Group.objects.get_or_create(name='Public')
         group.user_set.add(self.object)
@@ -31,13 +31,9 @@ class OpenRegistrationView(CreateView):
         messages.info(self.request, 'Registration was successful!')
         if isinstance(self.object, User):
             try:
-                print('pre-login')
-                # TODO: how do we ensure that the model backend is in use in settings.py?
                 login(self.request, self.object,
                       backend=settings.TOM_REGISTRATION.get('REGISTRATION_AUTHENTICATION_BACKEND'))
-                print('login')
             except ValueError as ve:
-                print(ve)
                 logger.error(f'Unable to log in newly registered user: {ve}')
 
         return redirect(self.get_success_url())

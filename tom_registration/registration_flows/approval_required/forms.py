@@ -6,7 +6,7 @@ from tom_common.forms import CustomUserCreationForm
 
 class RegistrationApprovalForm(CustomUserCreationForm):
     """
-
+    Form for handling registration requests in the approval required registration flow. Sets the user to inactive.
     """
     def save(self, commit=True):
         user = super().save(commit=False)
@@ -22,7 +22,7 @@ class RegistrationApprovalForm(CustomUserCreationForm):
 
 class ApproveUserForm(CustomUserCreationForm):
     """
-
+    Form for handling user registration approval requests.
     """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -43,7 +43,8 @@ class ApproveUserForm(CustomUserCreationForm):
 
 class ApprovalAuthenticationForm(AuthenticationForm):
     """
-
+    Form that replaces the default Django AuthenticationForm and renders an appropriate message if an inactive user
+    attempts to log in.
     """
     def confirm_login_allowed(self, user):
         if not user.is_active:
