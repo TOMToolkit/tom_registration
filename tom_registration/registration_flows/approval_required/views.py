@@ -60,6 +60,7 @@ class UserApprovalView(SuperuserRequiredMixin, UpdateView):
     def form_valid(self, form):
         response = super().form_valid(form)
 
+        # TODO: document this setting and all email facets
         if settings.TOM_REGISTRATION.get('SEND_APPROVAL_EMAILS'):
             try:
                 send_mail(settings.TOM_REGISTRATION.get('APPROVAL_SUBJECT', 'Your registration has been approved!'),

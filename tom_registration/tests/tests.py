@@ -99,3 +99,8 @@ class TestApprovalRegistrationViews(TestCase):
         self.client.post(reverse('registration:approve', kwargs={'pk': user.id}), data=self.user_data)
         user.refresh_from_db()
         self.assertTrue(user.is_active)
+
+
+# TODO: This test
+class TestMiddleware(TestCase):
+    pass

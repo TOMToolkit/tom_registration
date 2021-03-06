@@ -11,7 +11,7 @@ class RegistrationApprovalForm(CustomUserCreationForm):
     def save(self, commit=True):
         user = super().save(commit=False)
         user.is_active = False
-        if self.cleaned_data['password1']:  # TODO: what is this?
+        if self.cleaned_data['password1']:
             user.set_password(self.cleaned_data["password1"])
         if commit:
             user.save()
