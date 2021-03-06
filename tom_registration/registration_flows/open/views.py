@@ -13,10 +13,9 @@ from tom_registration.registration_flows.open.forms import OpenRegistrationForm
 logger = logging.getLogger(__name__)
 
 
-# TODO make this view inaccessible when logged in
 class OpenRegistrationView(CreateView):
     """
-
+    View for registering in the open registration flow. This view creates the user and immediately logs them in.
     """
     template_name = 'tom_registration/register_user.html'
     success_url = reverse_lazy(settings.TOM_REGISTRATION.get('REGISTRATION_REDIRECT_PATTERN', ''))

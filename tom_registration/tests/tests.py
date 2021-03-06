@@ -20,6 +20,7 @@ class TestOpenRegistrationViews(TestCase):
         }
 
     def test_user_register(self):
+        """Test that a user can register using the open registration flow."""
         response = self.client.post(reverse('registration:register'), data=self.user_data)
         user = User.objects.get(username=self.user_data['username'])
 
@@ -28,6 +29,9 @@ class TestOpenRegistrationViews(TestCase):
 
     @override_settings(TOM_REGISTRATION={'REGISTRATION_AUTHENTICATION_BACKEND': ''})
     def test_user_register_login_failure(self):
+        """
+        Test that an error message is logged correctly when a newly-registered user has an automated login failure.
+        """
         del settings.REGISTRATION_AUTHENTICATION_BACKEND
         with self.assertLogs('tom_registration.registration_flows.open.views', level='ERROR') as logs:
             response = self.client.post(reverse('registration:register'), data=self.user_data)
@@ -63,6 +67,10 @@ class TestApprovalRegistrationViews(TestCase):
         self.superuser = User.objects.create_superuser(username='superuser')
 
     def test_user_register(self):
+        """
+        Test that a user can register using the approval registration flow, that the user is inactive, and that the user
+        sees the correct error message if they attempt to log in prior to approval.
+        """
         response = self.client.post(reverse('registration:register'), data=self.user_data)
         messages = [(m.message, m.level) for m in get_messages(response.wsgi_request)]
         user = User.objects.get(username=self.user_data['username'])
@@ -82,6 +90,7 @@ class TestApprovalRegistrationViews(TestCase):
         self.assertContains(response, 'Your registration is currently pending administrator approval.')
 
     def test_user_approve(self):
+        """Test that a user can log in following approval in the approval registration flow."""
         response = self.client.post(reverse('tom_registration:register'), data=self.user_data)
         user = User.objects.get(username=self.user_data['username'])
         self.assertFalse(user.is_active)

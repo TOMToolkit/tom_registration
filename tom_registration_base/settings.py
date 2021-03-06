@@ -310,6 +310,7 @@ REST_FRAMEWORK = {
 TOM_REGISTRATION = {
     'REGISTRATION_AUTHENTICATION_BACKEND': 'django.contrib.auth.backends.ModelBackend',
     'REGISTRATION_REDIRECT_PATTERN': 'home'
+    'SEND_APPROVAL_EMAILS': True
 }
 
 try:
