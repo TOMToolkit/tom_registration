@@ -45,7 +45,11 @@ class TestOpenRegistrationViews(TestCase):
                    AUTHENTICATION_BACKENDS=(
                        'django.contrib.auth.backends.AllowAllUsersModelBackend',
                        'guardian.backends.ObjectPermissionBackend',
-                   ))
+                   ),
+                   TOM_REGISTRATION={
+                       'REGISTRATION_AUTHENTICATION_BACKEND': 'django.contrib.auth.backends.AllowAllUsersModelBackend',
+                        'REGISTRATION_REDIRECT_PATTERN': 'home'
+                   })
 class TestApprovalRegistrationViews(TestCase):
     def setUp(self):
         self.user_data = {
@@ -59,7 +63,6 @@ class TestApprovalRegistrationViews(TestCase):
         self.superuser = User.objects.create_superuser(username='superuser')
 
     def test_user_register(self):
-        print(get_resolver().reverse_dict.keys())
         response = self.client.post(reverse('registration:register'), data=self.user_data)
         messages = [(m.message, m.level) for m in get_messages(response.wsgi_request)]
         user = User.objects.get(username=self.user_data['username'])
@@ -70,33 +73,20 @@ class TestApprovalRegistrationViews(TestCase):
         self.assertFalse(user.is_active)
         self.assertTrue(auth.get_user(self.client).is_anonymous)
 
-        print(messages)
-        response = self.client.post(reverse('login'),
+        response = self.client.post(reverse('registration:login'),
                                     data={
                                         'username': self.user_data['username'],
                                         'password': self.user_data['password1']
                                     }, follow=True)
         self.assertTrue(auth.get_user(self.client).is_anonymous)
-        print(response.status_code)
-        print(auth.get_user(self.client))
-        messages = [(m.message, m.level) for m in get_messages(response.wsgi_request)]
-        self.assertEqual(messages[0][0], '')  # TODO: Test that this message conveys the pending status
-        print(messages)
+        self.assertContains(response, 'Your registration is currently pending administrator approval.')
 
     def test_user_approve(self):
         response = self.client.post(reverse('tom_registration:register'), data=self.user_data)
         user = User.objects.get(username=self.user_data['username'])
         self.assertFalse(user.is_active)
 
-        # user_approval_data = copy(self.user_data)
-        # user_approval_data.pop('password1')
-        # user_approval_data.pop('password2')
         self.client.force_login(self.superuser)
         response = self.client.post(reverse('registration:approve', kwargs={'pk': user.id}), data=self.user_data)
-        print(response.status_code)
         user.refresh_from_db()
         self.assertTrue(user.is_active)
-
-
-class TestRegistrationExtras(TestCase):
-    pass
