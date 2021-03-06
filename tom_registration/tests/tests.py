@@ -4,7 +4,6 @@ from django.contrib.auth.models import User
 from django.contrib.messages import get_messages
 from django.shortcuts import reverse
 from django.test import override_settings, TestCase
-from django.urls import get_resolver
 
 
 @override_settings(ROOT_URLCONF='tom_registration.tests.urls.test_open_urls')
@@ -39,7 +38,6 @@ class TestOpenRegistrationViews(TestCase):
                 'ERROR:tom_registration.registration_flows.open.views:Unable to log in newly registered user: '
                 'You have multiple authentication backends configured and therefore must provide the `backend` argument'
                 ' or set the `backend` attribute on the user.', logs.output)
-        user = User.objects.get(username=self.user_data['username'])
 
         self.assertEqual(response.status_code, 302)
         self.assertTrue(auth.get_user(self.client).is_anonymous)
@@ -51,9 +49,11 @@ class TestOpenRegistrationViews(TestCase):
                        'guardian.backends.ObjectPermissionBackend',
                    ),
                    TOM_REGISTRATION={
-                       'REGISTRATION_AUTHENTICATION_BACKEND': 'django.contrib.auth.backends.AllowAllUsersModelBackend',
-                        'REGISTRATION_REDIRECT_PATTERN': 'home'
-                   })
+                        'REGISTRATION_AUTHENTICATION_BACKEND': 'django.contrib.auth.backends.AllowAllUsersModelBackend',
+                        'REGISTRATION_REDIRECT_PATTERN': 'home',
+                        'SEND_APPROVAL_EMAILS': True
+                   },
+                   EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
 class TestApprovalRegistrationViews(TestCase):
     def setUp(self):
         self.user_data = {
@@ -91,11 +91,11 @@ class TestApprovalRegistrationViews(TestCase):
 
     def test_user_approve(self):
         """Test that a user can log in following approval in the approval registration flow."""
-        response = self.client.post(reverse('tom_registration:register'), data=self.user_data)
+        self.client.post(reverse('tom_registration:register'), data=self.user_data)
         user = User.objects.get(username=self.user_data['username'])
         self.assertFalse(user.is_active)
 
         self.client.force_login(self.superuser)
-        response = self.client.post(reverse('registration:approve', kwargs={'pk': user.id}), data=self.user_data)
+        self.client.post(reverse('registration:approve', kwargs={'pk': user.id}), data=self.user_data)
         user.refresh_from_db()
         self.assertTrue(user.is_active)

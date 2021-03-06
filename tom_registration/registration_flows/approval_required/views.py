@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User, Group
 from django.core.mail import mail_managers, send_mail
 from django.views.generic.edit import CreateView, UpdateView
-from django.shortcuts import redirect
+from django.shortcuts import redirect, reverse
 from django.urls import reverse_lazy
 
 from tom_common.mixins import SuperuserRequiredMixin
@@ -63,10 +63,11 @@ class UserApprovalView(SuperuserRequiredMixin, UpdateView):
         if settings.TOM_REGISTRATION.get('SEND_APPROVAL_EMAILS'):
             try:
                 send_mail(settings.TOM_REGISTRATION.get('APPROVAL_SUBJECT', 'Your registration has been approved!'),
-                          settings.TOM_REGISTRATION.get('APPROVAL_MESSAGE', 
+                          settings.TOM_REGISTRATION.get('APPROVAL_MESSAGE',
                                                         'Your registration has been approved. You can log in here: '
                                                         f'{reverse("login")}'),
-                          )
+                          settings.SERVER_EMAIL,
+                          [self.object.email])
             except SMTPException as smtpe:
                 logger.error(f'Unable to send email: {smtpe}')
 
