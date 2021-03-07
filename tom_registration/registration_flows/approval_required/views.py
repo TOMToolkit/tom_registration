@@ -36,7 +36,6 @@ class ApprovalRegistrationView(CreateView):
 
         messages.info(self.request, 'Your request to register has been submitted to the administrators.')
 
-        # TODO: add type hints
         if settings.TOM_REGISTRATION.get('SEND_APPROVAL_EMAILS'):
             try:
                 current_domain = Site.objects.get_current().domain

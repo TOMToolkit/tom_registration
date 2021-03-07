@@ -13,7 +13,7 @@ def registration_button():
 
 
 @register.inclusion_tag('tom_registration/partials/pending_users.html', takes_context=True)
-def pending_users(context):
+def pending_users(context: dict) -> dict:
     """
     Renders a table of pending (AKA inactive) users with buttons to approve or delete the user.
     """
