@@ -4,6 +4,7 @@ from smtplib import SMTPException
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User, Group
+from django.contrib.sites.models import Site
 from django.core.mail import mail_managers, send_mail
 from django.views.generic.edit import CreateView, UpdateView
 from django.shortcuts import redirect, reverse
@@ -16,6 +17,7 @@ from tom_registration.registration_flows.approval_required.forms import Registra
 logger = logging.getLogger(__name__)
 
 
+# TODO: Add post-approval hooks that actually handle the sending of email
 class ApprovalRegistrationView(CreateView):
     """
     View for handling registration requests in the approval required registration flow. This flow creates users but sets
@@ -34,12 +36,16 @@ class ApprovalRegistrationView(CreateView):
 
         messages.info(self.request, 'Your request to register has been submitted to the administrators.')
 
+        # TODO: add type hints
         if settings.TOM_REGISTRATION.get('SEND_APPROVAL_EMAILS'):
             try:
+                current_domain = Site.objects.get_current().domain
+                link_to_user_list = f'https://{current_domain}{reverse("user-list")}'
                 mail_managers(
                     f'Registration Request from {self.object.first_name} {self.object.last_name}',
                     f'{self.object.first_name} {self.object.last_name} has requested to register in your TOM. Please '
-                    f'approve or delete this user here: {reverse("user-list")}'
+                    f'approve or delete this user <a href="{link_to_user_list}">here</a>.',
+                    fail_silently=False
                 )
             except SMTPException as smtpe:
                 logger.error(f'Unable to send email: {smtpe}')
@@ -60,15 +66,17 @@ class UserApprovalView(SuperuserRequiredMixin, UpdateView):
     def form_valid(self, form):
         response = super().form_valid(form)
 
-        # TODO: document this setting and all email facets
         if settings.TOM_REGISTRATION.get('SEND_APPROVAL_EMAILS'):
             try:
+                current_domain = Site.objects.get_current().domain
+                link_to_login = f'https://{current_domain}{reverse("login")}'
                 send_mail(settings.TOM_REGISTRATION.get('APPROVAL_SUBJECT', 'Your registration has been approved!'),
                           settings.TOM_REGISTRATION.get('APPROVAL_MESSAGE',
-                                                        'Your registration has been approved. You can log in here: '
-                                                        f'{reverse("login")}'),
+                                                        'Your registration has been approved. You can log in '
+                                                        f'<a href="{link_to_login}">here</a>.'),
                           settings.SERVER_EMAIL,
-                          [self.object.email])
+                          [self.object.email],
+                          fail_silently=False)
             except SMTPException as smtpe:
                 logger.error(f'Unable to send email: {smtpe}')
 

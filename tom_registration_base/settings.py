@@ -71,7 +71,7 @@ MIDDLEWARE = [
     'tom_common.middleware.AuthStrategyMiddleware',
 ]
 
-ROOT_URLCONF = 'tom_registration.urls'
+ROOT_URLCONF = 'tom_registration_base.urls'
 
 TEMPLATES = [
     {
@@ -91,7 +91,7 @@ TEMPLATES = [
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
-WSGI_APPLICATION = 'tom_registration.wsgi.application'
+WSGI_APPLICATION = 'tom_registration_base.wsgi.application'
 
 
 # Database

@@ -29,7 +29,8 @@ The two registration flows are as follows:
     ```python
     TOM_REGISTRATION = {
         'REGISTRATION_AUTHENTICATION_BACKEND': 'django.contrib.auth.backends.ModelBackend',
-        'REGISTRATION_REDIRECT_PATTERN': 'home'
+        'REGISTRATION_REDIRECT_PATTERN': 'home',
+        'SEND_APPROVAL_EMAILS': True
     }
     ```
 
@@ -88,6 +89,14 @@ Then, change the value of `REGISTRATION_AUTHENTICATION_BACKEND` in the `TOM_REGI
         ...
     }
     ```
+
+## Email
+
+In the approval required registration flow, there is available behavior to send basic emails notifying administrators of a registration request, and notifying users of registration approval. Administrators are determined by the [Django MANAGERS setting](https://docs.djangoproject.com/en/3.1/ref/settings/#managers). Email behavior can be enabled or disabled with `SEND_APPROVAL_EMAILS`.
+
+The configuration of an email backend is a topic covered in depth by the [Django docs](http://docs.djangoproject.com/en/3.1/topics/email/#smtp-backend). There are a number of required settings that will need to be added.
+
+In the future, `tom_registration` will provide more configurable behavior upon user registration/approval.
 
 ## Running the tests
 

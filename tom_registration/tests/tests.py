@@ -1,7 +1,12 @@
+import copy
+from smtplib import SMTPException
+from unittest.mock import patch
+
 from django.conf import settings
 from django.contrib import auth
 from django.contrib.auth.models import User
 from django.contrib.messages import get_messages
+from django.core import mail
 from django.shortcuts import reverse
 from django.test import override_settings, TestCase
 
@@ -53,7 +58,7 @@ class TestOpenRegistrationViews(TestCase):
                         'REGISTRATION_REDIRECT_PATTERN': 'home',
                         'SEND_APPROVAL_EMAILS': True
                    },
-                   EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
+                   MANAGERS=[('David', 'dcollom@lco.global')])
 class TestApprovalRegistrationViews(TestCase):
     def setUp(self):
         self.user_data = {
@@ -88,10 +93,24 @@ class TestApprovalRegistrationViews(TestCase):
                                     }, follow=True)
         self.assertTrue(auth.get_user(self.client).is_anonymous)
         self.assertContains(response, 'Your registration is currently pending administrator approval.')
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn(f'Registration Request from {self.user_data["first_name"]} {self.user_data["last_name"]}',
+                        mail.outbox[0].subject)
+
+    @patch('tom_registration.registration_flows.approval_required.views.mail_managers')
+    def test_user_register_email_send_failure(self, mock_mail_managers):
+        """Test that a registration email send failure logs the correct error message."""
+        mock_mail_managers.side_effect = SMTPException('exception content')
+        with self.assertLogs('tom_registration.registration_flows.approval_required.views', level='ERROR') as logs:
+            self.client.post(reverse('registration:register'), data=self.user_data)
+            self.assertIn(
+                'ERROR:tom_registration.registration_flows.approval_required.views:'
+                'Unable to send email: exception content',
+                logs.output)
 
     def test_user_approve(self):
         """Test that a user can log in following approval in the approval registration flow."""
-        self.client.post(reverse('tom_registration:register'), data=self.user_data)
+        self.client.post(reverse('registration:register'), data=self.user_data)
         user = User.objects.get(username=self.user_data['username'])
         self.assertFalse(user.is_active)
 
@@ -99,8 +118,55 @@ class TestApprovalRegistrationViews(TestCase):
         self.client.post(reverse('registration:approve', kwargs={'pk': user.id}), data=self.user_data)
         user.refresh_from_db()
         self.assertTrue(user.is_active)
+        self.assertEqual(len(mail.outbox), 2)  # There should be two--one for the registration, one for the approval
+        self.assertIn('Your registration has been approved!', mail.outbox[1].subject)
+
+    @patch('tom_registration.registration_flows.approval_required.views.send_mail')
+    def test_user_approve_email_send_failure(self, mock_send_mail):
+        """Test that an approval email send failure logs the correct error message."""
+        self.client.force_login(self.superuser)
+        test_user_data = copy.copy(self.user_data)
+        test_user_data['password'] = test_user_data.pop('password1')
+        test_user_data.pop('password2')
+        user = User.objects.create(**test_user_data, is_active=False)
+        mock_send_mail.side_effect = SMTPException('exception content')
+
+        with self.assertLogs('tom_registration.registration_flows.approval_required.views', level='ERROR') as logs:
+            response = self.client.post(reverse('registration:approve', kwargs={'pk': user.id}), data=test_user_data)
+            self.assertIn(
+                'ERROR:tom_registration.registration_flows.approval_required.views:'
+                'Unable to send email: exception content',
+                logs.output)
 
 
-# TODO: This test
+@override_settings(ROOT_URLCONF='tom_registration.tests.urls.test_open_urls',
+                   MIDDLEWARE=[
+                        'django.middleware.security.SecurityMiddleware',
+                        'django.contrib.sessions.middleware.SessionMiddleware',
+                        'django.middleware.common.CommonMiddleware',
+                        'django.middleware.csrf.CsrfViewMiddleware',
+                        'django.contrib.auth.middleware.AuthenticationMiddleware',
+                        'django.contrib.messages.middleware.MessageMiddleware',
+                        'django.middleware.clickjacking.XFrameOptionsMiddleware',
+                        'tom_common.middleware.Raise403Middleware',
+                        'tom_common.middleware.ExternalServiceMiddleware',
+                        'tom_common.middleware.AuthStrategyMiddleware',
+                        'tom_registration.middleware.RedirectAuthenticatedUsersFromRegisterMiddleware'])
 class TestMiddleware(TestCase):
-    pass
+    def setUp(self):
+        self.user = User.objects.create(username='testuser')
+
+    def test_redirect_authenticated_user_to_profile(self):
+        """Test that an authenticated user is redirected to their profile if they attempt to reach the register page."""
+        self.client.force_login(self.user)
+        response = self.client.get(reverse('registration:register'), follow=True)
+        self.assertContains(response, 'Update')
+
+    def test_no_redirection_for_anonymous_user(self):
+        """
+        Test that an anonymous user can successfully access the register page with the
+        RedirectAuthenticatedUsersFromRegisterMiddleware enabled.
+        """
+        response = self.client.get(reverse('registration:register'), follow=True)
+        self.assertNotContains(response, 'Update')
+        self.assertContains(response, 'Register')

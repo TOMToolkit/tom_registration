@@ -10,7 +10,6 @@ class RedirectAuthenticatedUsersFromRegisterMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        # TODO: use reverse lookup for /accounts/register/
         if request.user.is_authenticated and request.path_info == reverse('registration:register'):
             return redirect(reverse('user-update', kwargs={'pk': request.user.id}))
 
