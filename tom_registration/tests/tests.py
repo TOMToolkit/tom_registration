@@ -95,7 +95,7 @@ class TestApprovalRegistrationViews(TestCase):
         self.assertContains(response, 'Your registration is currently pending administrator approval.')
         self.assertEqual(len(mail.outbox), 1)
         self.assertIn(f'Registration Request from {self.user_data["first_name"]} {self.user_data["last_name"]}',
-                        mail.outbox[0].subject)
+                      mail.outbox[0].subject)
 
     @patch('tom_registration.registration_flows.approval_required.views.mail_managers')
     def test_user_register_email_send_failure(self, mock_mail_managers):
@@ -132,7 +132,7 @@ class TestApprovalRegistrationViews(TestCase):
         mock_send_mail.side_effect = SMTPException('exception content')
 
         with self.assertLogs('tom_registration.registration_flows.approval_required.views', level='ERROR') as logs:
-            response = self.client.post(reverse('registration:approve', kwargs={'pk': user.id}), data=test_user_data)
+            self.client.post(reverse('registration:approve', kwargs={'pk': user.id}), data=test_user_data)
             self.assertIn(
                 'ERROR:tom_registration.registration_flows.approval_required.views:'
                 'Unable to send email: exception content',
