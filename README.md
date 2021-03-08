@@ -1,3 +1,5 @@
+[![Coverage Status](https://coveralls.io/repos/github/TOMToolkit/tom_registration/badge.svg?branch=main)](https://coveralls.io/github/TOMToolkit/tom_registration?branch=main)
+
 # TOM Registration
 
 This reusable TOM Toolkit app provides support for two user registration flows in the TOM Toolkit.
