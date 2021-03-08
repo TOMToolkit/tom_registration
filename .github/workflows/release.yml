@@ -40,7 +40,7 @@ jobs:
     - name: Build package and publish to PyPi
       env:
         TWINE_USERNAME: __token__
-        TWINE_PASSWORD: ${{ secrets.PYPI_TOMTOOLKIT_API_TOKEN }}
+        TWINE_PASSWORD: ${{ secrets.PYPI_TOM_REGISTRATION_API_TOKEN }}
       run: |
         python setup.py sdist bdist_wheel
         twine upload dist/*
