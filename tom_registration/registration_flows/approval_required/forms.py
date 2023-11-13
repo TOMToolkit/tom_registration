@@ -34,6 +34,12 @@ class ApproveUserForm(CustomUserCreationForm):
         # this is done because the form doubles as an update form, and it bypasses any password checks.
         user = super(forms.ModelForm, self).save(commit=False)
         user.is_active = True
+
+        # --- modification from orginal ---
+        # put the user in the public group
+        public_group, _ = Group.objects.get_or_create(name="Public")
+        user.groups.add(public_group)
+
         if commit:
             user.save()
             self.save_m2m()
