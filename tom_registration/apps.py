@@ -23,4 +23,4 @@ class TomRegistrationConfig(AppConfig):
         Integration point for adding items to the navbar.
         This method should return a list of partial templates to be included in the navbar.
         """
-        return ['tom_registration/partials/register_button.html']
+        return [{'partial': 'tom_registration/partials/register_button.html', 'position': 'right'}]
