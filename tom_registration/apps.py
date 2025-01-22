@@ -24,3 +24,16 @@ class TomRegistrationConfig(AppConfig):
         This method should return a list of partial templates to be included in the navbar.
         """
         return [{'partial': 'tom_registration/partials/register_button.html', 'position': 'right'}]
+
+    def user_lists(self):
+        """
+        Integration point for adding items to the user list page.
+
+        This method should return a list of dictionaries that include a `partial` key pointing to the path of the html
+        user_list partial. The `context` key should point to the dot separated string path to the templatetag that will
+        return a dictionary containing new context for the accompanying partial.
+        Typically, this partial will be a bootstrap table displaying some app specific user list or similar.
+
+        """
+        return [{'partial': 'tom_registration/partials/pending_users.html',
+                 'context': 'tom_registration.templatetags.registration_extras.pending_users'}]
