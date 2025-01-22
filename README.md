@@ -36,7 +36,7 @@ The two registration flows are as follows:
         'REGISTRATION_AUTHENTICATION_BACKEND': 'django.contrib.auth.backends.ModelBackend',
         'REGISTRATION_REDIRECT_PATTERN': 'home',
         'SEND_APPROVAL_EMAILS': True,
-        'REGISTRATION_STRATEGY': 'open' #['open', 'approval_required']
+        'REGISTRATION_STRATEGY': 'open'  # ['open', 'approval_required']
     }
     ```
 

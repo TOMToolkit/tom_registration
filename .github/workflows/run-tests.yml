@@ -40,7 +40,7 @@ jobs:
           poetry install  --with test,coverage,lint
       - name: Run Tests
         run: |
-          poetry run python -m unittest discover -v
+          poetry run python tom_registration/tests/run_tests.py
 
   publish_coverage:
     runs-on: ubuntu-latest
@@ -55,7 +55,7 @@ jobs:
           python -m pip install "poetry>=2.0,<3.0"
           poetry install --with test,coverage,lint
       - name: Run Tests
-        run: poetry run coverage run --include=tom_* -m unittest discover -v
+        run: poetry run coverage run --include=tom_* tom_registration/tests/run_tests.py
       - name: Report Coverage
         run: poetry run coveralls
         env:
