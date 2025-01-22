@@ -35,5 +35,8 @@ class TomRegistrationConfig(AppConfig):
         Typically, this partial will be a bootstrap table displaying some app specific user list or similar.
 
         """
-        return [{'partial': 'tom_registration/partials/pending_users.html',
-                 'context': 'tom_registration.templatetags.registration_extras.pending_users'}]
+        if settings.TOM_REGISTRATION['REGISTRATION_STRATEGY'] == 'approval_required':
+            return [{'partial': 'tom_registration/partials/pending_users.html',
+                     'context': 'tom_registration.templatetags.registration_extras.pending_users'}]
+        else:
+            return []
