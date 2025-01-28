@@ -11,8 +11,8 @@ from django.shortcuts import reverse
 from django.test import override_settings, TestCase
 
 
-@override_settings(ROOT_URLCONF='tom_registration.tests.urls.test_open_urls')
 class TestOpenRegistrationViews(TestCase):
+    """NOTE: run tests with: python ./tom_registration/tests/run_tests.py"""
     def setUp(self):
         self.user_data = {
             'username': 'aaronrodgers',
@@ -48,18 +48,19 @@ class TestOpenRegistrationViews(TestCase):
         self.assertTrue(auth.get_user(self.client).is_anonymous)
 
 
-@override_settings(ROOT_URLCONF='tom_registration.tests.urls.test_approval_required_urls',
-                   AUTHENTICATION_BACKENDS=(
+@override_settings(AUTHENTICATION_BACKENDS=(
                        'django.contrib.auth.backends.AllowAllUsersModelBackend',
                        'guardian.backends.ObjectPermissionBackend',
                    ),
                    TOM_REGISTRATION={
                         'REGISTRATION_AUTHENTICATION_BACKEND': 'django.contrib.auth.backends.AllowAllUsersModelBackend',
                         'REGISTRATION_REDIRECT_PATTERN': 'home',
-                        'SEND_APPROVAL_EMAILS': True
+                        'SEND_APPROVAL_EMAILS': True,
+                        'REGISTRATION_STRATEGY': 'approval_required'
                    },
                    MANAGERS=[('David', 'dcollom@lco.global')])
 class TestApprovalRegistrationViews(TestCase):
+    """NOTE: run tests with: python ./tom_registration/tests/run_tests.py"""
     def setUp(self):
         self.user_data = {
             'username': 'aaronrodgers',
@@ -139,8 +140,7 @@ class TestApprovalRegistrationViews(TestCase):
                 logs.output)
 
 
-@override_settings(ROOT_URLCONF='tom_registration.tests.urls.test_open_urls',
-                   MIDDLEWARE=[
+@override_settings(MIDDLEWARE=[
                         'django.middleware.security.SecurityMiddleware',
                         'django.contrib.sessions.middleware.SessionMiddleware',
                         'django.middleware.common.CommonMiddleware',
@@ -153,6 +153,7 @@ class TestApprovalRegistrationViews(TestCase):
                         'tom_common.middleware.AuthStrategyMiddleware',
                         'tom_registration.middleware.RedirectAuthenticatedUsersFromRegisterMiddleware'])
 class TestMiddleware(TestCase):
+    """NOTE: run tests with: python ./tom_registration/tests/run_tests.py"""
     def setUp(self):
         self.user = User.objects.create(username='testuser')
 
