@@ -21,6 +21,9 @@ class TestOpenRegistrationViews(TestCase):
             'email': 'aaronrodgers@berkeley.edu',
             'password1': 'gopackgo',
             'password2': 'gopackgo',
+            'profile-TOTAL_FORMS': ['1'],
+            'profile-INITIAL_FORMS': ['0'],
+            'profile-0-affiliation': [''],
         }
 
     def test_user_register(self):
@@ -69,6 +72,10 @@ class TestApprovalRegistrationViews(TestCase):
             'email': 'aaronrodgers@berkeley.edu',
             'password1': 'gopackgo',
             'password2': 'gopackgo',
+            'profile-TOTAL_FORMS': ['1'],
+            'profile-INITIAL_FORMS': ['0'],
+            'profile-0-affiliation': [''],
+
         }
         self.superuser = User.objects.create_superuser(username='superuser')
 
