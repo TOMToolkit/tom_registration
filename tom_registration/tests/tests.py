@@ -71,13 +71,12 @@ class TestApprovalRegistrationViews(TestCase):
 
     def setUp(self):
         # We need to change the URL patterns to use the approval registration flow for these tests
-        # To do this we need to remove the last URL pattern and add the approval URL pattern instead
+        # To do this we need prepend the approval URL pattern
         registration_strategy = settings.TOM_REGISTRATION['REGISTRATION_STRATEGY']
-        del tom_common.urls.urlpatterns[-1]
-        tom_common.urls.urlpatterns += [
-            path('', include(f'tom_registration.registration_flows.{registration_strategy}.urls',
-                             namespace='registration')),
-        ]
+
+        tom_common.urls.urlpatterns.insert(0, path('', include(f'tom_registration.registration_flows.'
+                                                               f'{registration_strategy}.urls',
+                                                               namespace='registration')))
         self.user_data = {
             'username': 'aaronrodgers',
             'first_name': 'Aaron',
@@ -95,12 +94,7 @@ class TestApprovalRegistrationViews(TestCase):
 
     def tearDown(self):
         # undo the registration URL changes made in setUp
-        registration_strategy = 'open'
-        del tom_common.urls.urlpatterns[-1]
-        tom_common.urls.urlpatterns += [
-            path('', include(f'tom_registration.registration_flows.{registration_strategy}.urls',
-                             namespace='registration')),
-        ]
+        del tom_common.urls.urlpatterns[0]
 
     def test_user_register(self):
         """

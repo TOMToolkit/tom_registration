@@ -8,7 +8,7 @@ app_name = 'tom_registration'
 
 
 urlpatterns = [
-    # path('accounts/login/', LoginView.as_view(authentication_form=ApprovalAuthenticationForm), name='login'),
+    path('accounts/login/', LoginView.as_view(authentication_form=ApprovalAuthenticationForm), name='login'),
     path('accounts/register/', ApprovalRegistrationView.as_view(), name='register'),
     path('accounts/approve/<int:pk>/', UserApprovalView.as_view(), name='approve')
 ]

@@ -48,7 +48,6 @@ class ApprovalAuthenticationForm(AuthenticationForm):
     """
     def confirm_login_allowed(self, user):
         if not user.is_active:
-            raise forms.ValidationError(
-                ('Your registration is currently pending administrator approval.'),
-                code='inactive'
-            )
+            raise forms.ValidationError('Your registration is currently pending administrator approval.',
+                                        code='inactive'
+                                        )
