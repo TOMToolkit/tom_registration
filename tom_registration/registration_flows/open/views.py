@@ -20,7 +20,7 @@ class OpenRegistrationView(CreateView):
     immediately logs them in.
     """
     template_name = 'tom_registration/register_user.html'
-    success_url = reverse_lazy(settings.TOM_REGISTRATION.get('REGISTRATION_REDIRECT_PATTERN', ''))
+    success_url = reverse_lazy(settings.TOM_REGISTRATION.get('REGISTRATION_REDIRECT_PATTERN', 'home'))
     form_class = OpenRegistrationForm
     extra_context = {'version': __version__}
 

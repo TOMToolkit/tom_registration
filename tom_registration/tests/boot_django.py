@@ -49,6 +49,7 @@ def boot_django():
             'tom_dataproducts',
             APP_NAME,  # defined above
         ),
+        SITE_ID=1,
         EXTRA_FIELDS={},
         TIME_ZONE='UTC',
         USE_TZ=True,
