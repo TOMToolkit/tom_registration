@@ -37,7 +37,7 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install "poetry>=2.0,<3.0"
           poetry env info  # display poetry's env info for debugging
-          poetry install  --with test,coverage,lint
+          poetry install --with test,coverage,lint
       - name: Run Tests
         run: |
           poetry run python tom_registration/tests/run_tests.py
