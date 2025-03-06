@@ -65,7 +65,7 @@ The two registration flows are as follows:
 
      ```python
      TOM_REGISTRATION = {
-         'REGISTRATION_AUTHENTICATION_BACKEND': 'django.contrib.auth.backends.AllowAllUsersModelBackend`,
+         'REGISTRATION_AUTHENTICATION_BACKEND': 'django.contrib.auth.backends.AllowAllUsersModelBackend',
          ...
      }
      ```
