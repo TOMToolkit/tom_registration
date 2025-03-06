@@ -38,19 +38,20 @@ class ApprovalRegistrationView(CreateView):
 
         messages.info(self.request, 'Your request to register has been submitted to the administrators.')
 
-        # TODO: Enable sending TOM Admin alert emails
-        # if settings.TOM_REGISTRATION.get('SEND_APPROVAL_EMAILS'):
-        #     try:
-        #         current_domain = Site.objects.get_current().domain
-        #         link_to_user_list = f'https://{current_domain}{reverse("user-list")}'
-        #         mail_managers(
-        #             f'Registration Request from {self.object.first_name} {self.object.last_name}',
-        #             f'{self.object.first_name} {self.object.last_name} has requested to register in your TOM. Please '
-        #             f'approve or delete this user <a href="{link_to_user_list}">here</a>.',
-        #             fail_silently=False
-        #         )
-        #     except SMTPException as smtpe:
-        #         logger.error(f'Unable to send email: {smtpe}')
+        if settings.TOM_REGISTRATION.get('SEND_APPROVAL_EMAILS'):
+            try:
+                current_domain = Site.objects.get_current().domain
+                link_to_user_list = f'https://{current_domain}{reverse("user-list")}'
+                mail_managers(
+                    subject=f'Registration Request from {self.object.first_name} {self.object.last_name}',
+                    message='',  # leave this blank in favor of html_message
+                    fail_silently=False,
+                    html_message=f'{self.object.first_name} {self.object.last_name} '
+                                 f'has requested to register in your TOM. Please approve or delete this user'
+                                 f' <a href="{link_to_user_list}">here</a>.',
+                )
+            except (SMTPException, ConnectionRefusedError) as error:
+                logger.error(f'Unable to send email: {error}')
 
         return redirect(self.get_success_url())
 
@@ -68,19 +69,23 @@ class UserApprovalView(SuperuserRequiredMixin, UpdateView):
     def form_valid(self, form):
         response = super().form_valid(form)
 
-        # TODO: Enable sending emails to approved Users
-        # if settings.TOM_REGISTRATION.get('SEND_APPROVAL_EMAILS'):
-        #     try:
-        #         current_domain = Site.objects.get_current().domain
-        #         link_to_login = f'https://{current_domain}{reverse("login")}'
-        #         send_mail(settings.TOM_REGISTRATION.get('APPROVAL_SUBJECT', 'Your registration has been approved!'),
-        #                   settings.TOM_REGISTRATION.get('APPROVAL_MESSAGE',
-        #                                                 'Your registration has been approved. You can log in '
-        #                                                 f'<a href="{link_to_login}">here</a>.'),
-        #                   settings.SERVER_EMAIL,
-        #                   [self.object.email],
-        #                   fail_silently=False)
-        #     except SMTPException as smtpe:
-        #         logger.error(f'Unable to send email: {smtpe}')
+        if settings.TOM_REGISTRATION.get('SEND_APPROVAL_EMAILS'):
+            try:
+                current_domain = Site.objects.get_current().domain
+                link_to_login = f'https://{current_domain}{reverse("login")}'
+                send_mail(
+                    subject=settings.TOM_REGISTRATION.get('APPROVAL_SUBJECT',
+                                                          f'Your {settings.TOM_NAME} registration has been approved!'),
+                    message='',  # leave this blank in favor of html_message
+                    from_email=settings.SERVER_EMAIL,
+                    recipient_list=[self.object.email],
+                    html_message=settings.TOM_REGISTRATION.get(
+                        'APPROVAL_MESSAGE',
+                        f'Your {settings.TOM_NAME} registration has been approved. '
+                        f'You can log in <a href="{link_to_login}">here</a>.'
+                    ),
+                    fail_silently=False)
+            except (SMTPException, ConnectionRefusedError) as error:
+                logger.error(f'Unable to send email: {error}')
 
         return response
