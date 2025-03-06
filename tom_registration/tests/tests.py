@@ -1,12 +1,13 @@
-# from smtplib import SMTPException
-# from unittest.mock import patch
+from smtplib import SMTPException
+from unittest.mock import patch
+import copy
 
 from django.conf import settings
 from django.urls import path, include
 from django.contrib import auth
 from django.contrib.auth.models import User
 from django.contrib.messages import get_messages
-# from django.core import mail
+from django.core import mail
 from django.shortcuts import reverse
 from django.test import override_settings, TestCase
 
@@ -84,10 +85,15 @@ class TestApprovalRegistrationViews(TestCase):
             'email': 'aaronrodgers@berkeley.edu',
             'password1': 'gopackgo',
             'password2': 'gopackgo',
+        }
+        self.form_data = {
             'profile-TOTAL_FORMS': ['1'],
             'profile-INITIAL_FORMS': ['0'],
             'profile-0-affiliation': [''],
-
+        }
+        self.user_form_data = {
+            **self.user_data,
+            **self.form_data,
         }
 
         self.superuser = User.objects.create_superuser(username='superuser')
@@ -101,7 +107,7 @@ class TestApprovalRegistrationViews(TestCase):
         Test that a user can register using the approval registration flow, that the user is inactive, and that the user
         sees the correct error message if they attempt to log in prior to approval.
         """
-        response = self.client.post(reverse('registration:register'), data=self.user_data)
+        response = self.client.post(reverse('registration:register'), data=self.user_form_data)
         messages = [(m.message, m.level) for m in get_messages(response.wsgi_request)]
         user = User.objects.get(username=self.user_data['username'])
 
@@ -111,7 +117,7 @@ class TestApprovalRegistrationViews(TestCase):
         self.assertFalse(user.is_active)
 
     def test_unaproved_user_login_failure(self):
-        self.client.post(reverse('registration:register'), data=self.user_data)
+        self.client.post(reverse('registration:register'), data=self.user_form_data)
 
         self.assertTrue(auth.get_user(self.client).is_anonymous)
 
@@ -123,50 +129,51 @@ class TestApprovalRegistrationViews(TestCase):
 
         self.assertTrue(auth.get_user(self.client).is_anonymous)
         self.assertContains(response, 'Your registration is currently pending administrator approval.')
-        # self.assertEqual(len(mail.outbox), 1)
-        # self.assertIn(f'Registration Request from {self.user_data["first_name"]} {self.user_data["last_name"]}',
-        #               mail.outbox[0].subject)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn(f'Registration Request from {self.user_data["first_name"]} {self.user_data["last_name"]}',
+                      mail.outbox[0].subject)
 
-    # @patch('tom_registration.registration_flows.approval_required.views.mail_managers')
-    # def test_user_register_email_send_failure(self, mock_mail_managers):
-    #     """Test that a registration email send failure logs the correct error message."""
-    #     mock_mail_managers.side_effect = SMTPException('exception content')
-    #     with self.assertLogs('tom_registration.registration_flows.approval_required.views', level='ERROR') as logs:
-    #         self.client.post(reverse('registration:register'), data=self.user_data)
-    #         self.assertIn(
-    #             'ERROR:tom_registration.registration_flows.approval_required.views:'
-    #             'Unable to send email: exception content',
-    #             logs.output)
+    @patch('tom_registration.registration_flows.approval_required.views.mail_managers')
+    def test_user_register_email_send_failure(self, mock_mail_managers):
+        """Test that a registration email send failure logs the correct error message."""
+        mock_mail_managers.side_effect = SMTPException('exception content')
+        with self.assertLogs('tom_registration.registration_flows.approval_required.views', level='ERROR') as logs:
+            self.client.post(reverse('registration:register'), data=self.user_form_data)
+            self.assertIn(
+                'ERROR:tom_registration.registration_flows.approval_required.views:'
+                'Unable to send email: exception content',
+                logs.output)
 
     def test_user_approve(self):
         """Test that a user can log in following approval in the approval registration flow."""
-        self.client.post(reverse('registration:register'), data=self.user_data)
+        self.client.post(reverse('registration:register'), data=self.user_form_data)
         user = User.objects.get(username=self.user_data['username'])
         self.assertFalse(user.is_active)
 
         self.client.force_login(self.superuser)
-        self.client.post(reverse('registration:approve', kwargs={'pk': user.id}), data=self.user_data)
+        self.client.post(reverse('registration:approve', kwargs={'pk': user.id}), data=self.user_form_data)
         user.refresh_from_db()
         self.assertTrue(user.is_active)
-        # self.assertEqual(len(mail.outbox), 2)  # There should be two--one for the registration, one for the approval
-        # self.assertIn('Your registration has been approved!', mail.outbox[1].subject)
+        self.assertEqual(len(mail.outbox), 2)  # There should be two--one for the registration, one for the approval
+        self.assertIn(f'Your {settings.TOM_NAME} registration has been approved!', mail.outbox[1].subject)
 
-    # @patch('tom_registration.registration_flows.approval_required.views.send_mail')
-    # def test_user_approve_email_send_failure(self, mock_send_mail):
-    #     """Test that an approval email send failure logs the correct error message."""
-    #     self.client.force_login(self.superuser)
-    #     test_user_data = copy.copy(self.user_data)
-    #     test_user_data['password'] = test_user_data.pop('password1')
-    #     test_user_data.pop('password2')
-    #     user = User.objects.create(**test_user_data, is_active=False)
-    #     mock_send_mail.side_effect = SMTPException('exception content')
-    #
-    #     with self.assertLogs('tom_registration.registration_flows.approval_required.views', level='ERROR') as logs:
-    #         self.client.post(reverse('registration:approve', kwargs={'pk': user.id}), data=test_user_data)
-    #         self.assertIn(
-    #             'ERROR:tom_registration.registration_flows.approval_required.views:'
-    #             'Unable to send email: exception content',
-    #             logs.output)
+    @patch('tom_registration.registration_flows.approval_required.views.send_mail')
+    def test_user_approve_email_send_failure(self, mock_send_mail):
+        """Test that an approval email send failure logs the correct error message."""
+        self.client.force_login(self.superuser)
+        test_user_data = copy.copy(self.user_data)
+        test_user_data['password'] = test_user_data.pop('password1')
+        test_user_data.pop('password2')
+        user = User.objects.create(**test_user_data, is_active=False)
+        mock_send_mail.side_effect = SMTPException('exception content')
+
+        with self.assertLogs('tom_registration.registration_flows.approval_required.views', level='ERROR') as logs:
+            self.client.post(reverse('registration:approve', kwargs={'pk': user.id}), data={**test_user_data,
+                                                                                            **self.form_data})
+            self.assertIn(
+                'ERROR:tom_registration.registration_flows.approval_required.views:'
+                'Unable to send email: exception content',
+                logs.output)
 
 
 @override_settings(MIDDLEWARE=[

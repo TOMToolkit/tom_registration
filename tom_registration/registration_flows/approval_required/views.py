@@ -75,7 +75,8 @@ class UserApprovalView(SuperuserRequiredMixin, UpdateView):
                 link_to_login = f'https://{current_domain}{reverse("login")}'
                 send_mail(
                     subject=settings.TOM_REGISTRATION.get('APPROVAL_SUBJECT',
-                                                          f'Your {settings.TOM_NAME} registration has been approved!'),
+                                                          f'Your {settings.TOM_NAME} '
+                                                          f'registration has been approved!'),
                     message='',  # leave this blank in favor of html_message
                     from_email=settings.SERVER_EMAIL,
                     recipient_list=[self.object.email],
