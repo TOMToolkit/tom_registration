@@ -35,7 +35,10 @@ The two registration flows are as follows:
     TOM_REGISTRATION = {
         'REGISTRATION_AUTHENTICATION_BACKEND': 'django.contrib.auth.backends.ModelBackend',
         'REGISTRATION_REDIRECT_PATTERN': 'home',
-        'SEND_APPROVAL_EMAILS': True
+        'REGISTRATION_STRATEGY': 'open',  # ['open', 'approval_required']
+        'SEND_APPROVAL_EMAILS': True,  # Optional email behavior if `REGISTRATION_STRATEGY = 'approval_required'`, default is False
+        'APPROVAL_SUBJECT': f'Your {TOM_NAME} registration has been approved!',  # Optional subject line of approval email, (Default Shown)
+        'APPROVAL_MESSAGE': f'Your {TOM_NAME} registration has been approved. You can log in <a href="mytom.com/login">here</a>.'  # Optional html-enabled body for approval email, (Default Shown)
     }
     ```
 
@@ -48,63 +51,66 @@ The two registration flows are as follows:
         'tom_registration.middleware.RedirectAuthenticatedUsersFromRegisterMiddleware',
     ]
     ```
+ 
+ 3. If you're using approval registration and you would like a message informing the user that their account is pending approval if they try to log in prior to approval, you'll need to make the following changes:
 
- 3. Depending on your preferred registration flow, include the appropriate tom_registration URLconf in your project `urls.py`. You will need to ensure that this urlpattern appears in the list before your `tom_common.urls`.
+     First, in your `settings.py`, set the first item of your `AUTHENTICATION_BACKENDS`:
 
-Open Registration:
+     ```python
+     AUTHENTICATION_BACKENDS = (
+         'django.contrib.auth.backends.AllowAllUsersModelBackend',
+         'guardian.backends.ObjectPermissionBackend'
+     )
+     ```
 
-    ```python
-        urlpatterns = [
-            ...
-            path('', include('tom_registration.registration_flows.open.urls', namespace='registration')),
-        ]
-    ```
+     Then, change the value of `REGISTRATION_AUTHENTICATION_BACKEND` in the `TOM_REGISTRATION` setting that was just created:
 
-Approval Registration:
-
-    ```python
-        urlpatterns = [
-            ...
-            path('', include('tom_registration.registration_flows.approval_required.urls', namespace='registration')),
-        ]
-    ```
-
- 4. While the registration views are now accessible directly, some changes need to be made to templates to make them available.
-
-Copy the contents of [this file](https://github.com/TOMToolkit/tom_registration/blob/main/templates/tom_common/partials/navbar_login.html) to `templates/tom_common/partials/navbar_login.html`.
-
-If you're using approval registration, copy the contents of [this file](https://github.com/TOMToolkit/tom_registration/blob/main/templates/auth/user_list.html) to `templates/auth/user_list.html`.
-
- 5. If you're using approval registration and you would like a message informing the user that their account is pending approval if they try to log in prior to approval, you'll need to make the following changes:
-
-First, in your `settings.py`, set the first item of your `AUTHENTICATION_BACKENDS`:
-
-    ```python
-    AUTHENTICATION_BACKENDS = (
-        'django.contrib.auth.backends.AllowAllUsersModelBackend',
-        'guardian.backends.ObjectPermissionBackend'
-    )
-    ```
-
-Then, change the value of `REGISTRATION_AUTHENTICATION_BACKEND` in the `TOM_REGISTRATION` setting that was just created:
-
-    ```python
-    TOM_REGISTRATION = {
-        'REGISTRATION_AUTHENTICATION_BACKEND': 'django.contrib.auth.backends.AllowAllUsersModelBackend`,
-        ...
-    }
-    ```
+     ```python
+     TOM_REGISTRATION = {
+         'REGISTRATION_AUTHENTICATION_BACKEND': 'django.contrib.auth.backends.AllowAllUsersModelBackend',
+         ...
+     }
+     ```
 
 ## Email
 
-In the approval required registration flow, there is available behavior to send basic emails notifying administrators of a registration request, and notifying users of registration approval. Administrators are determined by the [Django MANAGERS setting](https://docs.djangoproject.com/en/3.1/ref/settings/#managers). Email behavior can be enabled or disabled with `SEND_APPROVAL_EMAILS`.
+In the approval required registration flow, there is available behavior to send basic emails notifying moderators
+of a registration request, and notifying users of registration approval. Administrators are determined by the
+[Django MANAGERS setting](https://docs.djangoproject.com/en/stable/ref/settings/#managers). 
+Email behavior can be enabled or disabled with `SEND_APPROVAL_EMAILS`.
 
-The configuration of an email backend is a topic covered in depth by the [Django docs](http://docs.djangoproject.com/en/3.1/topics/email/#smtp-backend). There are a number of required settings that will need to be added.
+The configuration of an email backend is a topic covered in depth by the 
+[Django docs](http://docs.djangoproject.com/en/stable/topics/email/#smtp-backend). 
+There are a number of required settings that will need to be added.
+An example of how the most important settings should look something like the following:
 
-In the future, `tom_registration` will provide more configurable behavior upon user registration/approval.
+```python
+    MANAGERS = [('Manager1', 'manager@my_tom.com')]  # List of managers who should receive registration emails
+    EMAIL_SUBJECT_PREFIX = f'[{TOM_NAME}]'  # Optional prefix for all approval requests to managers
+    EMAIL_HOST = 'smtp.gmail.com'   # SMTP server for sending emails (this example is for gmail)
+    EMAIL_PORT = 587  # Port for the SMTP server
+    EMAIL_HOST_USER = 'my_tom@gmail.com'  # Email address for the account sending emails
+    EMAIL_HOST_PASSWORD = '******************'  # Password for the account sending emails (app password for gmail)
+    EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+    EMAIL_USE_TLS = True  # this is needed for gmail, other services may vary
+    EMAIL_USE_SSL = False  # this is needed for gmail, other services may vary
+    SERVER_EMAIL = "my_tom@email.com"  # Email address used as the "from" address if EMAIL_HOST_USER is not needed
+```
+
+**Note if using gmail:** the `EMAIL_HOST_PASSWORD` above is not the account email password associated with `EMAIL_HOST_USER`,
+but an app password generated by the account owner. This can be generated from the account settings page by searching for "app passwords".
+
 
 ## Running the tests
 
 In order to run the tests, run the following in your virtualenv:
 
-`python manage.py test`
+```bash
+    python tom_registration/tests/run_tests.py
+```
+
+For options see
+```bash
+    python tom_registration/tests/run_tests.py --help
+```
+

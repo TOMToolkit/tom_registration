@@ -1,4 +1,6 @@
 {% load bootstrap4 %}
-<li class="nav-item">
-    <a class="btn btn-outline-info" title="signup" href="{% url 'registration:register' %}">Register</a>
-</li>
+{% if not user.is_authenticated %}
+    <li class="nav-item">
+        <a class="btn btn-outline-info" title="signup" href="{% url 'registration:register' %}">Register</a>
+    </li>
+{% endif %}

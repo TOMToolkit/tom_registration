@@ -9,6 +9,7 @@ from django.shortcuts import redirect
 from django.urls import reverse_lazy
 
 from tom_registration.registration_flows.open.forms import OpenRegistrationForm
+from tom_registration import __version__
 
 logger = logging.getLogger(__name__)
 
@@ -19,8 +20,9 @@ class OpenRegistrationView(CreateView):
     immediately logs them in.
     """
     template_name = 'tom_registration/register_user.html'
-    success_url = reverse_lazy(settings.TOM_REGISTRATION.get('REGISTRATION_REDIRECT_PATTERN', ''))
+    success_url = reverse_lazy(settings.TOM_REGISTRATION.get('REGISTRATION_REDIRECT_PATTERN', 'home'))
     form_class = OpenRegistrationForm
+    extra_context = {'version': __version__}
 
     def form_valid(self, form):
         super().form_valid(form)
