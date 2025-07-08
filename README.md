@@ -17,7 +17,7 @@ The two registration flows are as follows:
 
  1. Install the package into your TOM environment:
    ```bash
-   pip install tom_registration
+   pip install tom-registration
    ```
 
  2. In your project `settings.py`, add `tom_registration` to your `INSTALLED_APPS` setting:
