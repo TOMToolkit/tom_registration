@@ -9,7 +9,7 @@ This reusable TOM Toolkit app provides support for two user registration flows i
 
 The two registration flows are as follows:
 
- 1. Open Registration - In this flow, the user fills in a registration form and is immediately able to access the TOM as a member of the Public Group.
+ 1. Open Registration - In this flow, the user fills in a registration form and is immediately able to access the TOM and see all public data.
 
  2. Approval Registration - In this flow, the user fills in a registration form, and is inactive until an administrator reviews and approves their registration.
 
