@@ -71,12 +71,12 @@ The two registration flows are as follows:
          ...
      }
      ```
-     Also, you must be aware of your `settings.AUTH_STRATEGY`: If it is set to `READ_ONLY` nothing further is required. If your `settings.AUTH_STRATEGY` is set to `LOCKED`, then you need to add `/accounts/register` to your `settings.OPEN_URLS` list.
+     Also, you must be aware of your `settings.AUTH_STRATEGY`: If it is set to `READ_ONLY` nothing further is required. If your `settings.AUTH_STRATEGY` is set to `LOCKED`, then you need to add `/accounts/register/` to your `settings.OPEN_URLS` list.
     For example,
 
     ```python
     AUTH_STRATEGY = 'LOCKED'
-    OPEN_URLS = ['/accounts/register']
+    OPEN_URLS = ['/accounts/register/']
     ```
 
 ## Email
