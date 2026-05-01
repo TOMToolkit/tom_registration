@@ -39,7 +39,7 @@ classifiers = [
 dynamic = ["version"]
 requires-python = ">=3.9.0,<3.13"
 dependencies = [
-    "tomtoolkit (>=2.23.1,<4.0.0)"
+    "tomtoolkit (>=2.28.1,<4.0.0)"
 ]
 
 [tool.poetry]
