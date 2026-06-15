@@ -13,6 +13,7 @@ APP_NAME = 'tom_registration'  # the stand-alone app we are testing
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), APP_NAME))
 
+
 def boot_django():
     settings.configure(
         BASE_DIR=BASE_DIR,
@@ -60,6 +61,13 @@ def boot_django():
         STATICFILES_DIRS=[os.path.join(BASE_DIR, 'static')],
         MEDIA_ROOT=os.path.join(BASE_DIR, 'data'),
         MEDIA_URL='/data/',
+        ROOT_URLCONF='tom_registration.tests.urls.test_urls',
+        TOM_REGISTRATION={
+            'REGISTRATION_AUTHENTICATION_BACKEND': 'django.contrib.auth.backends.ModelBackend',
+            'REGISTRATION_REDIRECT_PATTERN': 'home',
+            'SEND_APPROVAL_EMAILS': True,
+            'REGISTRATION_STRATEGY': 'open'  # ['open', 'approval_required']
+        },
         FACILITIES={
             'LCO': {
                 'portal_url': 'https://observe.lco.global',
