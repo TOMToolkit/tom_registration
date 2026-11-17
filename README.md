@@ -3,6 +3,11 @@
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/96d28f95266144f7afc7d118050b24ba)](https://www.codacy.com/gh/TOMToolkit/tom_registration/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=TOMToolkit/tom_registration&amp;utm_campaign=Badge_Grade)
 [![Coverage Status](https://coveralls.io/repos/github/TOMToolkit/tom_registration/badge.svg?branch=main)](https://coveralls.io/github/TOMToolkit/tom_registration?branch=main)
 
+# Deprecation Notice
+
+This app has been deprecated in favor of using [django-allauth](https://docs.allauth.org/en/latest/) for
+all registration needs.
+
 # TOM Registration
 
 This reusable TOM Toolkit app provides support for two user registration flows in the TOM Toolkit.
@@ -51,7 +56,7 @@ The two registration flows are as follows:
         'tom_registration.middleware.RedirectAuthenticatedUsersFromRegisterMiddleware',
     ]
     ```
- 
+
  3. If you're using approval registration and you would like a message informing the user that their account is pending approval if they try to log in prior to approval, you'll need to make the following changes:
 
      First, in your `settings.py`, set the first item of your `AUTHENTICATION_BACKENDS`:
@@ -83,11 +88,11 @@ The two registration flows are as follows:
 
 In the approval required registration flow, there is available behavior to send basic emails notifying moderators
 of a registration request, and notifying users of registration approval. Administrators are determined by the
-[Django MANAGERS setting](https://docs.djangoproject.com/en/stable/ref/settings/#managers). 
+[Django MANAGERS setting](https://docs.djangoproject.com/en/stable/ref/settings/#managers).
 Email behavior can be enabled or disabled with `SEND_APPROVAL_EMAILS`.
 
-The configuration of an email backend is a topic covered in depth by the 
-[Django docs](http://docs.djangoproject.com/en/stable/topics/email/#smtp-backend). 
+The configuration of an email backend is a topic covered in depth by the
+[Django docs](http://docs.djangoproject.com/en/stable/topics/email/#smtp-backend).
 There are a number of required settings that will need to be added.
 An example of how the most important settings should look something like the following:
 
